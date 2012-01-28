@@ -1,15 +1,16 @@
 <?php
 //Taken from FireEagle example at php.net http://www.php.net/manual/en/oauth.examples.fireeagle.php
 
-require config.php;
+$conskey=""; //Consumer Key
+$conssec=""; //Consumer Secret
+require("config.php");
 $req_url = 'http://www.tumblr.com/oauth/request_token';
 $authurl = 'http://www.tumblr.com/oauth/authorize';
 $acc_url = 'http://www.tumblr.com/oauth/access_token';
 $api_url = 'http://api.tumblr.com/v2/blog';
 
-$title="Testing";
-$body="Testing 123";
 
+$blogurl="www.mkartik.net";		//Blog URL
 session_start();
 
 // In state=1 the next request should include an oauth_token.
@@ -32,9 +33,22 @@ try {
     $_SESSION['secret'] = $access_token_info['oauth_token_secret'];
   } 
   $oauth->setToken($_SESSION['token'],$_SESSION['secret']);
-  $oauth->fetch("$api_url/www.mkartik.net/post",array("type"=>"text","title"=>$title,"body"=>$body),"POST");
+  $xml=simplexml_load_file("xml.xml","SimpleXMLElement",LIBXML_NOCDATA );
+$result["title"]   = $xml->xpath("/rss/channel/item/title");
+$result["content"] = $xml->xpath("/rss/channel/item/content:encoded/text()");
+$result["date"]=$xml->xpath("/rss/channel/item/pubDate");
+
+foreach($result as $key=>$value)
+{
+	foreach($value as $k=>$val)
+		$posts[$k][$key]=(string)$val;
+}
+foreach($posts as $post)
+{
+  $oauth->fetch("$api_url/$blogurl/post",array("type"=>"text","title"=>$post['title'],"body"=>$post['content'],"date"=>$post['date']),"POST");
   $json = json_decode($oauth->getLastResponse());
   print_r($json);
+}
 } catch(OAuthException $E) {
   print_r($E);
 }
