@@ -1,0 +1,8 @@
+
+Wordpress to Tumblr
+
+Used to exports posts from Wordpress to Tumblr
+
+This script takes a XML file exported via Wordpress export option and then posts to Tumblr via the API. 
+
+Any comments are welcome. 
